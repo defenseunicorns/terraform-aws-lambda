@@ -28,8 +28,7 @@ func TestExamplesCompleteCommon(t *testing.T) {
 			"TF_VAR_region": os.Getenv("TF_VAR_region"), // This will use the existing or newly set default value
 		},
 		VarFiles: []string{
-			"fixtures.common.tfvars",
-			"modules/password-rotation/fixtures/fixtures.common.tfvars",
+			"../../modules/password-rotation/fixtures/fixtures.common.tfvars",
 		},
 		RetryableTerraformErrors: map[string]string{
 			".*": "Failed to apply Terraform configuration due to an error.",

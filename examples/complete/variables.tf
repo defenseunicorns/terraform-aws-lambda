@@ -33,20 +33,6 @@ variable "iam_role_permissions_boundary" {
   default     = null
 }
 
-
-###########################################################
-#################### VPC Config ###########################
-variable "vpc_cidr" {
-  description = "The CIDR block for the VPC"
-  type        = string
-}
-
-variable "secondary_cidr_blocks" {
-  description = "A list of secondary CIDR blocks for the VPC"
-  type        = list(string)
-  default     = ["100.64.0.0/16"]
-}
-
 ###########################################################
 ################## Bastion Config #########################
 variable "enable_bastion" {

@@ -265,37 +265,6 @@ module "bastion" {
   tags                 = var.tags
 }
 
-# resource "aws_instance" "application" {
-#   #checkov:skip=CKV2_AWS_41: IAM role is created in the module
-#   ami                         = module.bastion.
-#   instance_type               = var.instance_type
-#   vpc_security_group_ids      = length(local.security_group_configs) > 0 ? aws_security_group.sg[*].id : var.security_group_ids
-#   user_data                   = data.cloudinit_config.config.rendered
-#   iam_instance_profile        = local.role_name == "" ? null : aws_iam_instance_profile.bastion_ssm_profile.name
-#   ebs_optimized               = true
-#   associate_public_ip_address = var.assign_public_ip
-#   monitoring                  = true
-#   tenancy                     = var.tenancy
-#   private_ip                  = var.private_ip
-#   root_block_device {
-#     volume_size = var.root_volume_config.volume_size
-#     volume_type = var.root_volume_config.volume_type
-#     encrypted   = true
-#   }
-#   metadata_options {
-#     http_tokens   = "required"
-#     http_endpoint = "enabled"
-#   }
-
-#   subnet_id = var.subnet_name != "" ? data.aws_subnet.subnet_by_name[0].id : var.subnet_id
-
-#   tags = merge(
-#     var.tags,
-#     { Name = var.name }
-#   )
-# }
-
-
 ############################################################################
 ##################### Lambda Password Rotation #############################
 
