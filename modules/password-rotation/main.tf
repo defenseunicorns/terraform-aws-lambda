@@ -7,10 +7,10 @@ module "password_lambda" {
   source        = "git::https://github.com/terraform-aws-modules/terraform-aws-lambda.git?ref=v6.0.0"
   function_name = "${var.name_prefix}-password-function-${var.random_id}"
   count         = var.enable_password_rotation_lambda ? 1 : 0
-  description   = var.description#"Lambda Function that performs password rotation on ec2 windows and linux"
-  handler       = var.handler #"lambda_function.lambda_handler"
-  runtime       = var.runtime #"python3.9"
-  timeout       = var.timeout #900
+  description   = var.description #"Lambda Function that performs password rotation on ec2 windows and linux"
+  handler       = var.handler     #"lambda_function.lambda_handler"
+  runtime       = var.runtime     #"python3.9"
+  timeout       = var.timeout     #900
   publish       = true
   allowed_triggers = {
     password-rotation = {
