@@ -1,8 +1,18 @@
 variable "enable_password_rotation_lambda" {
   description = "This will enable password rotation for your select users on your selected ec2 instances."
   type        = bool
-  default     = false
+  default     = true
 }
+
+variable "name_prefix" {
+  description = "Name prefix for all resources that use a randomized suffix"
+  type        = string
+  validation {
+    condition     = length(var.name_prefix) <= 37
+    error_message = "Name Prefix may not be longer than 37 characters."
+  }
+}
+
 variable "users" {
   description = "List of users to change passwords for password lambda function"
   type        = list(string)
@@ -16,15 +26,6 @@ variable "instance_ids" {
 variable "region" {
   description = "AWS Region"
   type        = string
-}
-
-variable "name_prefix" {
-  description = "Name prefix for all resources that use a randomized suffix"
-  type        = string
-  validation {
-    condition     = length(var.name_prefix) <= 37
-    error_message = "Name Prefix may not be longer than 37 characters."
-  }
 }
 
 variable "cron_schedule_password_rotation" {
@@ -49,4 +50,28 @@ variable "slack_webhook_url" {
   description = "value"
   type        = string
   default     = null
+}
+
+variable "description" {
+  description = "Description of the lambda function"
+  type        = string
+  default     = "Lambda Function that performs some predefined action"
+}
+
+variable "handler" {
+  description = "Handler for the lambda function"
+  type        = string
+  default     = "lambda_function.lambda_handler"
+}
+
+variable "runtime" {
+  description = "Runtime for the lambda function"
+  type        = string
+  default     = "python3.9"
+}
+
+variable "timeout" {
+  description = "Timeout for the lambda function"
+  type        = number
+  default     = 900
 }
