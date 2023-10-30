@@ -272,12 +272,11 @@ module "password_lambda" {
 
   count = var.enable_bastion ? 1 : 0
 
-  source                          = "../../modules/password-rotation"
-  enable_password_rotation_lambda = var.enable_password_rotation_lambda
-  region                          = var.region
-  random_id                       = lower(random_id.default.hex)
-  name_prefix                     = var.name_prefix
-  users                           = var.users
+  source      = "../../modules/password-rotation"
+  region      = var.region
+  random_id   = lower(random_id.default.hex)
+  name_prefix = var.name_prefix
+  users       = var.users
   # Add any additional instances you want the function to run against here
   instance_ids                    = [module.bastion.instance_id]
   cron_schedule_password_rotation = var.cron_schedule_password_rotation

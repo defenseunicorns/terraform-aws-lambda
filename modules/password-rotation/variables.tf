@@ -1,9 +1,3 @@
-variable "enable_password_rotation_lambda" {
-  description = "This will enable password rotation for your select users on your selected ec2 instances."
-  type        = bool
-  default     = true
-}
-
 variable "name_prefix" {
   description = "Name prefix for all resources that use a randomized suffix"
   type        = string
@@ -35,7 +29,7 @@ variable "cron_schedule_password_rotation" {
 }
 
 variable "random_id" {
-  description = "random it for unique naming"
+  description = "random id for unique naming"
   type        = string
   default     = ""
 }

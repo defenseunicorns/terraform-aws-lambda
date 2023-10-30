@@ -2,11 +2,9 @@ data "aws_partition" "current" {}
 
 data "aws_caller_identity" "current" {}
 
-
 module "password_lambda" {
   source        = "git::https://github.com/terraform-aws-modules/terraform-aws-lambda.git?ref=v6.0.0"
-  function_name = "${var.name_prefix}-password-function-${var.random_id}"
-  count         = var.enable_password_rotation_lambda ? 1 : 0
+  function_name = join("-", [var.name_prefix, "password-function", var.random_id])
   description   = var.description
   handler       = var.handler
   runtime       = var.runtime
@@ -15,7 +13,7 @@ module "password_lambda" {
   allowed_triggers = {
     password-rotation = {
       principal  = "events.amazonaws.com"
-      source_arn = aws_cloudwatch_event_rule.cron_eventbridge_rule[count.index].arn
+      source_arn = aws_cloudwatch_event_rule.cron_eventbridge_rule.arn
     }
   }
   environment_variables = {
@@ -98,8 +96,7 @@ module "password_lambda" {
 }
 
 resource "aws_cloudwatch_event_rule" "cron_eventbridge_rule" {
-  count       = var.enable_password_rotation_lambda ? 1 : 0
-  name        = "${var.name_prefix}-password-function-trigger-${var.random_id}"
+  name        = join("-", [var.name_prefix, "password-function-trigger", var.random_id])
   description = "Monthly trigger for lambda function"
   # schedule_expression = "cron(0 0 1 * ? *)"
   schedule_expression = var.cron_schedule_password_rotation
@@ -112,15 +109,14 @@ resource "aws_cloudwatch_event_rule" "cron_eventbridge_rule" {
     "aws.events"
   ],
   "resources": [
-    "${module.password_lambda[0].lambda_function_arn}"
+    "${module.password_lambda.lambda_function_arn}"
   ]
 }
 EOF
 }
 
 resource "aws_cloudwatch_event_target" "cron_event_target" {
-  count     = var.enable_password_rotation_lambda ? 1 : 0
-  rule      = aws_cloudwatch_event_rule.cron_eventbridge_rule[count.index].name
+  rule      = aws_cloudwatch_event_rule.cron_eventbridge_rule.name
   target_id = "TargetFunctionV1"
-  arn       = module.password_lambda[0].lambda_function_arn
+  arn       = module.password_lambda.lambda_function_arn
 }

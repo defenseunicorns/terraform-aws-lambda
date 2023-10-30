@@ -22,7 +22,7 @@ output "vpc_cidr" {
   sensitive   = true
 }
 
-# output "lambda_password_function_arn" {
-#   description = "Arn for lambda password function"
-#   value       = try(module.password_lambda[0].lambda_password_function_arn)
-# }
+output "lambda_password_function_arn" {
+  description = "Arn for lambda password function"
+  value       = try(module.password_lambda[0].lambda_password_function_arn, null)
+}
