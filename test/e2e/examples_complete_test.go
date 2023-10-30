@@ -1,7 +1,6 @@
 package e2e_test
 
 import (
-	"os"
 	"testing"
 	"time"
 
@@ -16,7 +15,7 @@ func TestExamplesCompleteCommon(t *testing.T) {
 	// Generate a random hex string to use as the name prefix for name conflicts
 	randomHex := utils.GenerateRandomHex(2)
 
-	// Set the TF_VAR_region to us-east-2 if it's not already set
+	// Set environment variables if not already set
 	utils.SetDefaultEnvVar("TF_VAR_region", "us-east-2")
 	utils.SetDefaultEnvVar("TF_VAR_name_prefix", "ci-"+randomHex)
 
@@ -24,11 +23,8 @@ func TestExamplesCompleteCommon(t *testing.T) {
 	terraformOptions := &terraform.Options{
 		TerraformDir: tempFolder,
 		Upgrade:      false,
-		EnvVars: map[string]string{
-			"TF_VAR_region": os.Getenv("TF_VAR_region"), // This will use the existing or newly set default value
-		},
 		VarFiles: []string{
-			"../../modules/password-rotation/fixtures/fixtures.common.tfvars",
+			"../../examples/complete/fixtures.common.tfvars",
 		},
 		RetryableTerraformErrors: map[string]string{
 			".*": "Failed to apply Terraform configuration due to an error.",

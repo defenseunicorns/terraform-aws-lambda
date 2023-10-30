@@ -128,7 +128,6 @@ To see examples of how to leverage this Lambda Module, please refer to the [exam
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_cron_schedule_password_rotation"></a> [cron\_schedule\_password\_rotation](#input\_cron\_schedule\_password\_rotation) | Schedule for password change function to run on | `string` | `"cron(0 0 1 * ? *)"` | no |
-| <a name="input_enable_password_rotation_lambda"></a> [enable\_password\_rotation\_lambda](#input\_enable\_password\_rotation\_lambda) | This will enable password rotation for your select users on your selected ec2 instances. | `bool` | `false` | no |
 | <a name="input_instance_ids"></a> [instance\_ids](#input\_instance\_ids) | List of instances that passwords will be rotated by lambda function | `list(string)` | n/a | yes |
 | <a name="input_name_prefix"></a> [name\_prefix](#input\_name\_prefix) | Name prefix for all resources that use a randomized suffix | `string` | n/a | yes |
 | <a name="input_random_id"></a> [random\_id](#input\_random\_id) | random it for unique naming | `string` | `""` | no |

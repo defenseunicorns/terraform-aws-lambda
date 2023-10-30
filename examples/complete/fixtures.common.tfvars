@@ -19,7 +19,6 @@ zarf_version = "v0.29.2"
 ################## Lambda Config #####################
 
 ################# Password Rotation ##################
-enable_password_rotation_lambda = true
 # Add users that will be on your ec2 instances.
 users = ["ec2-user", "Administrator"]
 
