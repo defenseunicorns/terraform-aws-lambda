@@ -13,7 +13,7 @@ name_prefix = "ex-complete"
 bastion_ssh_user     = "ec2-user" # local user in bastion used to ssh
 bastion_ssh_password = "my-password"
 # renovate: datasource=github-tags depName=defenseunicorns/zarf
-zarf_version = "v0.30.1"
+zarf_version = "v0.31.0"
 
 ######################################################
 ################## Lambda Config #####################
