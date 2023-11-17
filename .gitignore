@@ -29,7 +29,6 @@ crash.*.log
 !examples/complete/fixtures.insecure.tfvars
 !examples/complete/fixtures.secure.tfvars
 !modules/cloudtrail/examples/complete/fixtures.create-bucket.tfvars
-!modules/password-rotation/fixtures/fixtures.common.tfvars
 
 # Ignore override files as they are usually used to override resources locally and so
 # are not checked in
