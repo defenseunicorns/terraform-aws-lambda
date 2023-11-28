@@ -59,3 +59,9 @@ variable "timeout" {
   type        = number
   default     = 900
 }
+
+variable "cloudwatch_logs_export_bucket" {
+  description = "Bucket to target for exporting logs"
+  type        = string
+  default     = ""
+}
