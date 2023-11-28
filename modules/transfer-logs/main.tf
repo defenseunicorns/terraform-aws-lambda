@@ -36,34 +36,27 @@ module "transfer_lambda" {
   }
   attach_policy_statements = true
   policy_statements = {
-    ec2 = {
+    a = {
       effect    = "Allow",
-      actions   = ["ec2:DescribeInstances", "ec2:DescribeImages"]
+      actions   = [
+        "logs:CreateExportTask",
+        "logs:Describe*",
+        "logs:ListTagsLogGroup"
+      ]
       resources = ["*"]
-      condition = {
-        stringequals_condition = {
-          test     = "StringEquals"
-          variable = "aws:RequestedRegion"
-          values   = [var.region]
-        }
-        stringequals_condition2 = {
-          test     = "StringEquals"
-          variable = "aws:PrincipalAccount"
-          values   = [data.aws_caller_identity.current.account_id]
-        }
-      }
     },
-    secretsmanager = {
+    b = {
       effect = "Allow",
       actions = [
-        "secretsmanager:CreateSecret",
-        "secretsmanager:PutResourcePolicy",
-        "secretsmanager:DescribeSecret",
-        "secretsmanager:UpdateSecret"
+        "ssm:DescribeParameters",
+        "ssm:GetParameter",
+        "ssm:GetParameters",
+        "ssm:GetParametersByPath",
+        "ssm:PutParameter"
       ]
-      resources = ["arn:${data.aws_partition.current.partition}:secretsmanager:${var.region}:${data.aws_caller_identity.current.account_id}:*"]
+      resources = ["arn:${data.aws_partition.current.partition}:ssm:${var.region}:${data.aws_caller_identity.current.account_id}:parameter/log-exporter-last-export/*"]
     },
-    logs = {
+    c = {
       effect = "Allow",
       actions = [
         "logs:CreateLogGroup",
@@ -72,22 +65,21 @@ module "transfer_lambda" {
       ]
       resources = ["arn:${data.aws_partition.current.partition}:logs:${var.region}:${data.aws_caller_identity.current.account_id}:*"]
     },
-    ssm = {
+    d = {
       effect = "Allow"
       actions = [
-        "ssm:SendCommand",
-        "ssm:GetCommandInvocation",
-        "ssm:PutParameter",
-        "ssm:GetParameter",
-        "ssm:DeleteParameter"
+        "s3:PutObject",
+        "s3:PutObjectACL"
       ]
-      resources = [
-        #should be variable passed in per instance.
-        "arn:${data.aws_partition.current.partition}:ec2:${var.region}:${data.aws_caller_identity.current.account_id}:instance/*",
-        "arn:${data.aws_partition.current.partition}:ssm:${var.region}:${data.aws_caller_identity.current.account_id}:*",
-        "arn:${data.aws_partition.current.partition}:ssm:${var.region}::document/AWS-RunShellScript",
-        "arn:${data.aws_partition.current.partition}:ssm:${var.region}::document/AWS-RunPowerShellScript"
+      resources = ["arn:${data.aws_partition.current.partition}:s3:::${var.cloudwatch_logs_export_bucket}"]
+    },
+    e = {
+      effect = "Allow"
+      actions = [
+        "s3:PutBucketAcl",
+        "s3:GetBucketAcl"
       ]
+      resources = ["arn:${data.aws_partition.current.partition}:s3:::${var.cloudwatch_logs_export_bucket}"]
     },
   }
   source_path = "${path.module}/fixtures/functions/transfer-logs/lambda_function.py"
