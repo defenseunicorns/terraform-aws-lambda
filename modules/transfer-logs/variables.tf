@@ -15,7 +15,7 @@ variable "region" {
 variable "cron_schedule_logs_transfer" {
   description = "Schedule for transfer logs function to run on"
   type        = string
-  default     = "cron(0 0 1 * ? *)"
+  default     = "cron(0 */4 * * ? *)"
 }
 
 variable "random_id" {
