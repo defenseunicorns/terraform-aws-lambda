@@ -87,8 +87,7 @@ module "transfer_lambda" {
 
 resource "aws_cloudwatch_event_rule" "cron_eventbridge_rule" {
   name        = join("-", [var.name_prefix, "transfer-function-trigger", var.random_id])
-  description = "Monthly trigger for lambda function"
-  # schedule_expression = "cron(0 0 1 * ? *)"
+  description = "4 hour trigger for lambda function"
   schedule_expression = var.cron_schedule_logs_transfer
   event_pattern       = <<EOF
 {

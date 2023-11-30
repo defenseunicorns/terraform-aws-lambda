@@ -283,3 +283,13 @@ module "password_lambda" {
   slack_notification_enabled      = var.slack_notification_enabled
   slack_webhook_url               = var.slack_webhook_url
 }
+
+module "transfer_lambda" {
+  source        = "../../modules/transfer-logs"
+  region      = var.region
+  random_id   = lower(random_id.default.hex)
+  name_prefix = var.name_prefix
+  cron_schedule_logs_transfer = var.cron_schedule_logs_transfer
+  slack_notification_enabled      = var.slack_notification_enabled
+  slack_webhook_url               = var.slack_webhook_url
+  }
