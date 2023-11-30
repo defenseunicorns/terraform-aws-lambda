@@ -23,6 +23,7 @@ zarf_version = "v0.30.1"
 users = ["ec2-user", "Administrator"]
 
 cron_schedule_password_rotation = "cron(0 0 1 * ? *)"
+cron_schedule_logs_transfer = "cron(0 */4 * * ? *)"
 
 slack_notification_enabled = false
 
