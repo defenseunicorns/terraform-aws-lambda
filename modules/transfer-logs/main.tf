@@ -37,8 +37,8 @@ module "transfer_lambda" {
   attach_policy_statements = true
   policy_statements = {
     a = {
-      effect    = "Allow",
-      actions   = [
+      effect = "Allow",
+      actions = [
         "logs:CreateExportTask",
         "logs:Describe*",
         "logs:ListTagsLogGroup"
@@ -86,8 +86,8 @@ module "transfer_lambda" {
 }
 
 resource "aws_cloudwatch_event_rule" "cron_eventbridge_rule" {
-  name        = join("-", [var.name_prefix, "transfer-function-trigger", var.random_id])
-  description = "4 hour trigger for lambda function"
+  name                = join("-", [var.name_prefix, "transfer-function-trigger", var.random_id])
+  description         = "4 hour trigger for lambda function"
   schedule_expression = var.cron_schedule_logs_transfer
   event_pattern       = <<EOF
 {
