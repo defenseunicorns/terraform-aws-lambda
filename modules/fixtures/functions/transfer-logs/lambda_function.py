@@ -13,12 +13,13 @@ logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 def lambda_handler(event, context):
+    target_bucket = os.environ.get('cloudwatch_logs_export_bucket', '')
     # Ensure necessary environment variables are set
-    if 'S3_BUCKET' not in os.environ:
-        logger.error("Error: S3_BUCKET not defined")
+    if target_bucket is None or target_bucket == '':
+        logger.error("Error: target_bucket not defined")
         return
 
-    logger.info(f"Environment variable S3_BUCKET={os.environ['S3_BUCKET']}")
+    logger.info(f"target_bucket={target_bucket}")
 
     # Retrieve all log groups from CloudWatch
     log_groups = []
