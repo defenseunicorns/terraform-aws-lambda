@@ -56,7 +56,7 @@ locals {
         "arn:${data.aws_partition.current.partition}:ssm:${var.region}::document/AWS-RunPowerShellScript"
       ]
     }
-  } : {
+    } : {
     a = {
       effect = "Allow"
       actions = [
@@ -104,9 +104,9 @@ locals {
     }
   }
   dynamic_environment_variables = var.is_password_rotation_lambda ? {
-    users         = join(",", var.users)
-    instance_ids  = join(",", var.instance_ids)
-  } : {
+    users        = join(",", var.users)
+    instance_ids = join(",", var.instance_ids)
+    } : {
     cloudwatch_logs_export_bucket = var.cloudwatch_logs_export_bucket
   }
   static_env_vars = {
@@ -150,7 +150,7 @@ module "lambda" {
   }
   attach_policy_statements = true
   policy_statements        = local.policy_statements
-  source_path = "${path.module}/fixtures/functions/${var.function_name}/lambda_function.py"
+  source_path              = "${path.module}/fixtures/functions/${var.function_name}/lambda_function.py"
 }
 
 resource "aws_cloudwatch_event_rule" "cron_eventbridge_rule" {
