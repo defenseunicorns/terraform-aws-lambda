@@ -272,7 +272,7 @@ module "password_lambda" {
 
   count = var.enable_bastion ? 1 : 0
 
-  source      = "../../modules"
+  source      = "../.."
   region      = var.region
   random_id   = lower(random_id.default.hex)
   name_prefix = var.name_prefix
@@ -284,7 +284,7 @@ module "password_lambda" {
   slack_webhook_url          = var.slack_webhook_url
 }
 module "transfer_logs_lambda" {
-  source                      = "../../modules"
+  source                      = "../.."
   region                      = var.region
   random_id                   = lower(random_id.default.hex)
   name_prefix                 = var.name_prefix
