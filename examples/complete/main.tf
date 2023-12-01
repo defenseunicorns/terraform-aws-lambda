@@ -272,14 +272,24 @@ module "password_lambda" {
 
   count = var.enable_bastion ? 1 : 0
 
-  source      = "../../modules/password-rotation"
+  source      = "../.."
   region      = var.region
   random_id   = lower(random_id.default.hex)
   name_prefix = var.name_prefix
   users       = var.users
   # Add any additional instances you want the function to run against here
-  instance_ids                    = [module.bastion.instance_id]
-  cron_schedule_password_rotation = var.cron_schedule_password_rotation
-  slack_notification_enabled      = var.slack_notification_enabled
-  slack_webhook_url               = var.slack_webhook_url
+  instance_ids               = [module.bastion.instance_id]
+  cron_schedule              = var.cron_schedule_password_rotation
+  slack_notification_enabled = var.slack_notification_enabled
+  slack_webhook_url          = var.slack_webhook_url
+}
+module "transfer_logs_lambda" {
+  source                      = "../.."
+  region                      = var.region
+  random_id                   = lower(random_id.default.hex)
+  name_prefix                 = var.name_prefix
+  cron_schedule               = var.cron_schedule_logs_transfer
+  slack_notification_enabled  = var.slack_notification_enabled
+  slack_webhook_url           = var.slack_webhook_url
+  is_password_rotation_lambda = false
 }

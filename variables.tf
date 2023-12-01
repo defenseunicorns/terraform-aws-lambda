@@ -10,11 +10,13 @@ variable "name_prefix" {
 variable "users" {
   description = "List of users to change passwords for password lambda function"
   type        = list(string)
+  default     = []
 }
 
 variable "instance_ids" {
   description = "List of instances that passwords will be rotated by lambda function"
   type        = list(string)
+  default     = []
 }
 
 variable "region" {
@@ -22,8 +24,8 @@ variable "region" {
   type        = string
 }
 
-variable "cron_schedule_password_rotation" {
-  description = "Schedule for password change function to run on"
+variable "cron_schedule" {
+  description = "Schedule for lambda function to run on, default is for password rotation function"
   type        = string
   default     = "cron(0 0 1 * ? *)"
 }
@@ -68,4 +70,22 @@ variable "timeout" {
   description = "Timeout for the lambda function"
   type        = number
   default     = 900
+}
+
+variable "function_name" {
+  description = "Partial name of the lambda function without prefix and random id"
+  type        = string
+  default     = "password-function"
+}
+
+variable "is_password_rotation_lambda" {
+  description = "Is this a password rotation lambda function"
+  type        = bool
+  default     = true
+}
+
+variable "cloudwatch_logs_export_bucket" {
+  description = "Bucket to target for exporting logs"
+  type        = string
+  default     = ""
 }
