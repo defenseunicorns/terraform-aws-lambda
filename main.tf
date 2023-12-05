@@ -108,7 +108,7 @@ locals {
   dynamic_environment_variables = var.which_lambda_function == "password_rotation" ? {
     users        = join(",", var.users)
     instance_ids = join(",", var.instance_ids)
-  } : var.which_lambda_function == "log_exportation" ? {
+    } : var.which_lambda_function == "log_exportation" ? {
     cloudwatch_logs_export_bucket = var.cloudwatch_logs_export_bucket
   } : {}
   static_env_vars = {
@@ -151,11 +151,11 @@ module "lambda" {
     }
   }
   attach_policy_statements = true
-  policy_statements        = merge(
+  policy_statements = merge(
     local.policy_statements_password_rotation,
     local.policy_statements_log_exportation
   )
-  source_path              = "${path.module}/fixtures/functions/${var.which_lambda_function}/lambda_function.py"
+  source_path = "${path.module}/fixtures/functions/${var.which_lambda_function}/lambda_function.py"
 }
 
 resource "aws_cloudwatch_event_rule" "cron_eventbridge_rule" {

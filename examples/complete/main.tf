@@ -270,7 +270,7 @@ module "bastion" {
 
 module "password_lambda" {
 
-  count = var.enable_password_rotation ? 1 : 0
+  count                 = var.enable_password_rotation ? 1 : 0
   which_lambda_function = "password_rotation"
 
   source      = "../.."
@@ -284,16 +284,16 @@ module "password_lambda" {
   slack_notification_enabled = var.slack_notification_enabled
   slack_webhook_url          = var.slack_webhook_url
 }
-module "transfer_logs_lambda" {
+module "export_logs_lambda" {
 
-  count = var.enable_cloudwatch_logs_export ? 1 : 0
-  which_lambda_function       = "log_exportation"
+  count                 = var.enable_cloudwatch_logs_export ? 1 : 0
+  which_lambda_function = "log_exportation"
 
-  source                      = "../.."
-  region                      = var.region
-  random_id                   = lower(random_id.default.hex)
-  name_prefix                 = var.name_prefix
-  cron_schedule               = var.cron_schedule_logs_transfer
-  slack_notification_enabled  = var.slack_notification_enabled
-  slack_webhook_url           = var.slack_webhook_url
+  source                     = "../.."
+  region                     = var.region
+  random_id                  = lower(random_id.default.hex)
+  name_prefix                = var.name_prefix
+  cron_schedule              = var.cron_schedule_logs_transfer
+  slack_notification_enabled = var.slack_notification_enabled
+  slack_webhook_url          = var.slack_webhook_url
 }
