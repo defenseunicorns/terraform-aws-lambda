@@ -3,8 +3,8 @@ data "aws_partition" "current" {}
 data "aws_caller_identity" "current" {}
 
 locals {
-  policy_statements = var.is_password_rotation_lambda ? {
-    ec2 = {
+  policy_statements_password_rotation = var.which_lambda_function == "password_rotation" ? {
+    "ec2" = {
       effect    = "Allow"
       actions   = ["ec2:DescribeInstances", "ec2:DescribeImages"]
       resources = ["*"]
@@ -21,7 +21,7 @@ locals {
         }
       }
     }
-    secretsmanager = {
+    "secretsmanager" = {
       effect = "Allow"
       actions = [
         "secretsmanager:CreateSecret",
@@ -31,7 +31,7 @@ locals {
       ]
       resources = ["arn:${data.aws_partition.current.partition}:secretsmanager:${var.region}:${data.aws_caller_identity.current.account_id}:*"]
     }
-    logs = {
+    "logs" = {
       effect = "Allow"
       actions = [
         "logs:CreateLogGroup",
@@ -40,7 +40,7 @@ locals {
       ]
       resources = ["arn:${data.aws_partition.current.partition}:logs:${var.region}:${data.aws_caller_identity.current.account_id}:*"]
     }
-    ssm = {
+    "ssm" = {
       effect = "Allow"
       actions = [
         "ssm:SendCommand",
@@ -56,8 +56,9 @@ locals {
         "arn:${data.aws_partition.current.partition}:ssm:${var.region}::document/AWS-RunPowerShellScript"
       ]
     }
-    } : {
-    a = {
+  } : null
+  policy_statements_log_exportation = var.which_lambda_function == "log_exportation" ? {
+    "a" = {
       effect = "Allow"
       actions = [
         "logs:CreateExportTask",
@@ -66,7 +67,7 @@ locals {
       ]
       resources = ["*"]
     }
-    b = {
+    "b" = {
       effect = "Allow"
       actions = [
         "ssm:DescribeParameters",
@@ -77,7 +78,7 @@ locals {
       ]
       resources = ["arn:${data.aws_partition.current.partition}:ssm:${var.region}:${data.aws_caller_identity.current.account_id}:parameter/log-exporter-last-export/*"]
     }
-    c = {
+    "c" = {
       effect = "Allow"
       actions = [
         "logs:CreateLogGroup",
@@ -86,7 +87,7 @@ locals {
       ]
       resources = ["arn:${data.aws_partition.current.partition}:logs:${var.region}:${data.aws_caller_identity.current.account_id}:*"]
     }
-    d = {
+    "d" = {
       effect = "Allow"
       actions = [
         "s3:PutObject",
@@ -94,7 +95,7 @@ locals {
       ]
       resources = ["arn:${data.aws_partition.current.partition}:s3:::${var.cloudwatch_logs_export_bucket}"]
     }
-    e = {
+    "e" = {
       effect = "Allow"
       actions = [
         "s3:PutBucketAcl",
@@ -102,23 +103,24 @@ locals {
       ]
       resources = ["arn:${data.aws_partition.current.partition}:s3:::${var.cloudwatch_logs_export_bucket}"]
     }
-  }
-  dynamic_environment_variables = var.is_password_rotation_lambda ? {
+  } : null
+
+  dynamic_environment_variables = var.which_lambda_function == "password_rotation" ? {
     users        = join(",", var.users)
     instance_ids = join(",", var.instance_ids)
-    } : {
+  } : var.which_lambda_function == "log_exportation" ? {
     cloudwatch_logs_export_bucket = var.cloudwatch_logs_export_bucket
-  }
+  } : {}
   static_env_vars = {
     slack_webhook_url          = var.slack_webhook_url
     slack_notification_enabled = var.slack_notification_enabled
   }
-
 }
+
 
 module "lambda" {
   source        = "git::https://github.com/terraform-aws-modules/terraform-aws-lambda.git?ref=v6.2.0"
-  function_name = join("-", [var.name_prefix, var.password_function, var.random_id])
+  function_name = join("-", [var.name_prefix, var.which_lambda_function, var.random_id])
   description   = var.description
   handler       = var.handler
   runtime       = var.runtime
@@ -149,12 +151,15 @@ module "lambda" {
     }
   }
   attach_policy_statements = true
-  policy_statements        = local.policy_statements
-  source_path              = "${path.module}/fixtures/functions/${var.function_name}/lambda_function.py"
+  policy_statements        = merge(
+    local.policy_statements_password_rotation,
+    local.policy_statements_log_exportation
+  )
+  source_path              = "${path.module}/fixtures/functions/${var.which_lambda_function}/lambda_function.py"
 }
 
 resource "aws_cloudwatch_event_rule" "cron_eventbridge_rule" {
-  name        = join("-", [var.name_prefix, "${var.function_name}-trigger", var.random_id])
+  name        = join("-", [var.name_prefix, "${var.which_lambda_function}-trigger", var.random_id])
   description = "Trigger for lambda function"
   # schedule_expression = "cron(0 0 1 * ? *)"
   schedule_expression = var.cron_schedule

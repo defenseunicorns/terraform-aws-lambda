@@ -72,20 +72,18 @@ variable "timeout" {
   default     = 900
 }
 
-variable "function_name" {
-  description = "Partial name of the lambda function without prefix and random id"
-  type        = string
-  default     = "password-function"
-}
-
-variable "is_password_rotation_lambda" {
-  description = "Is this a password rotation lambda function"
-  type        = bool
-  default     = true
-}
-
 variable "cloudwatch_logs_export_bucket" {
   description = "Bucket to target for exporting logs"
   type        = string
   default     = ""
+}
+
+variable "which_lambda_function" {
+  type        = string
+  description = "Identify which function to invoke in lammbda module (password_rotation, log_exportation, another_funtion)"
+
+  validation {
+    condition     = contains(["password_rotation", "log_exportation"], var.which_lambda_function)
+    error_message = "which_lambda_function must be one of 'password_rotation' or 'log_exportation'."
+  }
 }

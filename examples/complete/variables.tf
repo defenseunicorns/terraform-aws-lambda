@@ -127,3 +127,15 @@ variable "slack_webhook_url" {
   type        = string
   default     = null
 }
+
+variable "enable_password_rotation" {
+  description = "If true, a lambda function will be created to rotate passwords for the bastion"
+  type        = bool
+  default     = true
+}
+
+variable "enable_cloudwatch_logs_export" {
+  description = "If true, a lambda function will be created to export cloudwatch logs to s3"
+  type        = bool
+  default     = true
+}
