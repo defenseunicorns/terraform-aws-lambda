@@ -3,7 +3,7 @@ data "aws_partition" "current" {}
 data "aws_caller_identity" "current" {}
 
 module "password_lambda" {
-  source        = "git::https://github.com/terraform-aws-modules/terraform-aws-lambda.git?ref=v6.7.0"
+  source        = "git::https://github.com/terraform-aws-modules/terraform-aws-lambda.git?ref=v6.7.1"
   function_name = join("-", [var.name_prefix, "password-function", var.random_id])
   description   = var.description
   handler       = var.handler
