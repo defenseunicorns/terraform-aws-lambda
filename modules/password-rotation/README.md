@@ -18,7 +18,7 @@
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_password_lambda"></a> [password\_lambda](#module\_password\_lambda) | git::https://github.com/terraform-aws-modules/terraform-aws-lambda.git | v6.7.1 |
+| <a name="module_password_lambda"></a> [password\_lambda](#module\_password\_lambda) | git::https://github.com/terraform-aws-modules/terraform-aws-lambda.git | v7.0.0 |
 
 ## Resources
 
