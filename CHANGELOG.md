@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.0.5](https://github.com/defenseunicorns/terraform-aws-lambda/compare/v0.0.4...v0.0.5) (2024-04-18)
+
+
+### Features
+
+* add ability to fetch webhook url from another secret ([#33](https://github.com/defenseunicorns/terraform-aws-lambda/issues/33)) ([3c52f14](https://github.com/defenseunicorns/terraform-aws-lambda/commit/3c52f14a4cd99aecf30eac0bedd3201e8cb0cab9))
+
 ## [0.0.4](https://github.com/defenseunicorns/terraform-aws-lambda/compare/v0.0.3...v0.0.4) (2024-04-18)
 
 
