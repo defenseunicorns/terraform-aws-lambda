@@ -1,17 +1,8 @@
-# variable "name_prefix" {
-#   description = "The prefix to use when naming all resources"
-#   type        = string
-#   validation {
-#     condition     = length(var.name_prefix) <= 20
-#     error_message = "The name prefix cannot be more than 20 characters"
-#   }
-#   default = "ci"
-# }
-variable "name_prefix" {
-  description = "Name prefix for all resources that use a randomized suffix"
+variable "prefix" {
+  description = "Name prefix"
   type        = string
   validation {
-    condition     = length(var.name_prefix) <= 37
+    condition     = length(var.prefix) <= 37
     error_message = "Name Prefix may not be longer than 37 characters."
   }
 }
@@ -35,12 +26,6 @@ variable "iam_role_permissions_boundary" {
 
 ###########################################################
 ################## Bastion Config #########################
-variable "enable_bastion" {
-  description = "If true, a bastion will be created"
-  type        = bool
-  default     = true
-}
-
 variable "bastion_tenancy" {
   description = "The tenancy of the bastion"
   type        = string
@@ -57,12 +42,6 @@ variable "bastion_ssh_user" {
   description = "The SSH user to use for the bastion"
   type        = string
   default     = "ec2-user"
-}
-
-variable "bastion_ssh_password" {
-  description = "The SSH password to use for the bastion if SSM authentication is used"
-  type        = string
-  default     = "my-password"
 }
 
 variable "zarf_version" {
@@ -104,20 +83,8 @@ variable "users" {
   default     = []
 }
 
-variable "cron_schedule_password_rotation" {
-  description = "Schedule for password change function to run on"
-  type        = string
-  default     = "cron(0 0 1 * ? *)"
-}
-
-variable "slack_notification_enabled" {
-  description = "enable slack notifications for password rotation function. If enabled a slack webhook url will also need to be provided for this to work"
-  type        = bool
-  default     = false
-}
-
-variable "slack_webhook_url" {
-  description = "value"
+variable "notification_webhook_url" {
+  description = "Webhook URL for notifications from Lambda function"
   type        = string
   default     = null
 }

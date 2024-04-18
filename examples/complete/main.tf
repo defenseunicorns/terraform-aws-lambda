@@ -6,27 +6,105 @@ resource "random_id" "default" {
   byte_length = 2
 }
 
+data "aws_availability_zones" "available" {
+  filter {
+    name   = "opt-in-status"
+    values = ["opt-in-not-required"]
+  }
+}
+
 locals {
   # Add randomness to names to avoid collisions when multiple users are using this example
-  vpc_name                       = "${var.name_prefix}-${lower(random_id.default.hex)}"
-  bastion_name                   = "${var.name_prefix}-bastion-${lower(random_id.default.hex)}"
-  access_log_bucket_name_prefix  = "${var.name_prefix}-accesslog-${lower(random_id.default.hex)}"
-  session_log_bucket_name_prefix = "${var.name_prefix}-bastionsessionlog-${lower(random_id.default.hex)}"
-  kms_key_alias_name_prefix      = "alias/${var.name_prefix}-${lower(random_id.default.hex)}"
-  access_log_sqs_queue_name      = "${var.name_prefix}-accesslog-access-${lower(random_id.default.hex)}"
+  vpc_name                       = "${var.prefix}-${lower(random_id.default.hex)}"
+  bastion_name                   = "${var.prefix}-bastion-${lower(random_id.default.hex)}"
+  access_log_bucket_name_prefix  = "${var.prefix}-accesslog-${lower(random_id.default.hex)}"
+  session_log_bucket_name_prefix = "${var.prefix}-bastionsessionlog-${lower(random_id.default.hex)}"
+  kms_key_alias_name_prefix      = "alias/${var.prefix}-${lower(random_id.default.hex)}"
+  access_log_sqs_queue_name      = "${var.prefix}-accesslog-access-${lower(random_id.default.hex)}"
+
+  tags = merge(
+    var.tags,
+    {
+      RootTFModule = replace(basename(path.cwd), "_", "-") # tag names based on the directory name
+      ManagedBy    = "Terraform"
+      Repo         = "https://github.com/defenseunicorns/terraform-aws-lambda"
+    }
+  )
+}
+
+module "subnet_addrs" {
+  source = "git::https://github.com/hashicorp/terraform-cidr-subnets?ref=v1.0.0"
+
+  base_cidr_block = "10.200.0.0/16"
+
+  # new_bits is added to the cidr of vpc_cidr to chunk the subnets up
+  # public-a - 10.200.0.0/22 - 1,022 hosts
+  # public-b - 10.200.4.0/22 - 1,022 hosts
+  # public-c - 10.200.8.0/22 - 1,022 hosts
+  # private-a - 10.200.12.0/22 - 1,022 hosts
+  # private-b - 10.200.16.0/22 - 1,022 hosts
+  # private-c - 10.200.20.0/22 - 1,022 hosts
+  # database-a - 10.200.24.0/27 - 30 hosts
+  # database-b - 10.200.24.32/27 - 30 hosts
+  # database-c - 10.200.24.64/27 - 30 hosts
+  networks = [
+    {
+      name     = "public-a"
+      new_bits = 6
+    },
+    {
+      name     = "public-b"
+      new_bits = 6
+    },
+    {
+      name     = "public-c"
+      new_bits = 6
+    },
+    {
+      name     = "private-a"
+      new_bits = 6
+    },
+    {
+      name     = "private-b"
+      new_bits = 6
+    },
+    {
+      name     = "private-c"
+      new_bits = 6
+    },
+    {
+      name     = "database-a"
+      new_bits = 11
+    },
+    {
+      name     = "database-b"
+      new_bits = 11
+    },
+    {
+      name     = "database-c"
+      new_bits = 11
+    },
+  ]
+}
+
+locals {
+  azs              = [for az_name in slice(data.aws_availability_zones.available.names, 0, min(length(data.aws_availability_zones.available.names), 3)) : az_name]
+  public_subnets   = [for k, v in module.subnet_addrs.network_cidr_blocks : v if strcontains(k, "public")]
+  private_subnets  = [for k, v in module.subnet_addrs.network_cidr_blocks : v if strcontains(k, "private")]
+  database_subnets = [for k, v in module.subnet_addrs.network_cidr_blocks : v if strcontains(k, "database")]
 }
 
 module "vpc" {
-  # checkov:skip=CKV_TF_1: "Ensure Terraform module sources use a commit hash" -- We've decided to use tags rather than a hash
-  source = "git::https://github.com/defenseunicorns/terraform-aws-vpc.git?ref=v0.1.5"
+  #checkov:skip=CKV_TF_1: using ref to a specific version
+  source = "git::https://github.com/defenseunicorns/terraform-aws-vpc.git?ref=v0.1.7"
 
   name                  = local.vpc_name
   vpc_cidr              = "10.200.0.0/16"
   secondary_cidr_blocks = ["100.64.0.0/16"] # Used for optimizing IP address usage by pods in an EKS cluster. See https://aws.amazon.com/blogs/containers/optimize-ip-addresses-usage-by-pods-in-your-amazon-eks-cluster/
-  azs                   = ["${var.region}a", "${var.region}b", "${var.region}c"]
-  public_subnets        = [for k, v in module.vpc.azs : cidrsubnet(module.vpc.vpc_cidr_block, 5, k)]
-  private_subnets       = [for k, v in module.vpc.azs : cidrsubnet(module.vpc.vpc_cidr_block, 5, k + 4)]
-  database_subnets      = [for k, v in module.vpc.azs : cidrsubnet(module.vpc.vpc_cidr_block, 5, k + 8)]
+  azs                   = local.azs
+  public_subnets        = local.public_subnets
+  private_subnets       = local.private_subnets
+  database_subnets      = local.database_subnets
   intra_subnets         = [for k, v in module.vpc.azs : cidrsubnet(element(module.vpc.vpc_secondary_cidr_blocks, 0), 5, k)]
   single_nat_gateway    = true
   enable_nat_gateway    = true
@@ -47,9 +125,11 @@ module "vpc" {
   }
   create_database_subnet_group      = true
   instance_tenancy                  = "default"
+  create_default_vpc_endpoints      = true
   vpc_flow_log_permissions_boundary = var.iam_role_permissions_boundary
-  tags                              = var.tags
+  tags                              = local.tags
 }
+
 
 # Create a KMS key and corresponding alias. This KMS key will be used whenever encryption is needed in creating this infrastructure deployment
 resource "aws_kms_key" "default" {
@@ -234,7 +314,7 @@ data "aws_ami" "amazonlinux2" {
 }
 
 module "bastion" {
-  source = "git::https://github.com/defenseunicorns/terraform-aws-bastion.git?ref=v0.0.11"
+  source = "git::https://github.com/defenseunicorns/terraform-aws-bastion.git?ref=v0.0.15"
 
   enable_bastion_terraform_permissions = true
 
@@ -253,33 +333,33 @@ module "bastion" {
   session_log_bucket_name_prefix = local.session_log_bucket_name_prefix
   kms_key_arn                    = aws_kms_key.default.arn
   ssh_user                       = var.bastion_ssh_user
-  ssh_password                   = var.bastion_ssh_password
-  assign_public_ip               = false
-  enable_log_to_s3               = true
-  enable_log_to_cloudwatch       = true
-  private_ip                     = var.private_ip != "" ? var.private_ip : null
+  secrets_manager_secret_id      = module.password_lambda.secrets_manager_secret_id
+
+  assign_public_ip         = false
+  enable_log_to_s3         = true
+  enable_log_to_cloudwatch = true
+  private_ip               = var.private_ip != "" ? var.private_ip : null
 
   tenancy              = var.bastion_tenancy
   zarf_version         = var.zarf_version
   permissions_boundary = var.iam_role_permissions_boundary
   tags                 = var.tags
+  bastion_instance_tags = {
+    "Password-Rotation" = "enabled"
+  }
 }
 
 ############################################################################
 ##################### Lambda Password Rotation #############################
 
 module "password_lambda" {
+  source                   = "../../modules/password-rotation"
+  region                   = var.region
+  suffix                   = lower(random_id.default.hex)
+  prefix                   = var.prefix
+  users                    = var.users
+  notification_webhook_url = var.notification_webhook_url
 
-  count = var.enable_bastion ? 1 : 0
-
-  source      = "../../modules/password-rotation"
-  region      = var.region
-  random_id   = lower(random_id.default.hex)
-  name_prefix = var.name_prefix
-  users       = var.users
-  # Add any additional instances you want the function to run against here
-  instance_ids                    = [module.bastion.instance_id]
-  cron_schedule_password_rotation = var.cron_schedule_password_rotation
-  slack_notification_enabled      = var.slack_notification_enabled
-  slack_webhook_url               = var.slack_webhook_url
+  rotation_tag_key   = "Password-Rotation"
+  rotation_tag_value = "enabled"
 }
