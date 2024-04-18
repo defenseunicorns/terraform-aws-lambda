@@ -43,6 +43,12 @@ variable "notification_webhook_url" {
   default     = null
 }
 
+variable "notification_webhook_secret_id" {
+  description = "Secret ID for the webhook URL"
+  type        = string
+  default     = null
+}
+
 variable "region" {
   description = "AWS Region"
   type        = string

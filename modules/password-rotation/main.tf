@@ -30,6 +30,7 @@ module "password_lambda" {
     ROTATION_TAG_KEY         = var.rotation_tag_key
     ROTATION_TAG_VALUE       = var.rotation_tag_value
     NOTIFICATION_WEBHOOK_URL = var.notification_webhook_url
+    WEBHOOK_SECRET_ID        = var.notification_webhook_secret_id
   }
 
   assume_role_policy_statements = {

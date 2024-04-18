@@ -45,7 +45,7 @@ def lambda_handler(event, context):
             update_ec2_instances(ssm_client, arn)
 
             # Generic success message for notification
-            send_notification("Secret rotation process completed successfully", context)
+            send_notification(f"Lambda Function {context.function_name}: Secret rotation process completed successfully", context)
             logger.info(f"{context.function_name}: Successfully completed all steps in secret rotation")
             return {"statusCode": 200, "body": json.dumps("Function executed successfully!")}
         else:
@@ -211,25 +211,48 @@ def valid_url(url):
     except ValueError:
         return False
 
+def fetch_secret(secret_id):
+    """Fetch a secret value from AWS Secrets Manager."""
+    client = boto3.client('secretsmanager')
+    try:
+        logger.info(f"Fetching webhook_url from secret {secret_id}")
+        response = client.get_secret_value(SecretId=secret_id)
+        secret = response['SecretString']
+        return secret
+    except Exception as e:
+        logger.error(f"Error retrieving secret {secret_id}: {str(e)}")
+        return None
+
 def send_notification(message, context):
     """Send a generic notification message to the specified webhook URL."""
-    webhook_url = os.environ.get("NOTIFICATION_WEBHOOK_URL")
-    if webhook_url and valid_url(webhook_url):
+    # First, try to use the direct URL from the environment
+    webhook_url = os.environ.get("WEBHOOK_URL")
+
+    # If not set, try fetching the URL from Secrets Manager using the secret ID
+    if not webhook_url:
+        secret_id = os.environ.get("WEBHOOK_SECRET_ID")
+        if secret_id:
+            webhook_url = fetch_secret(secret_id)
+            if not webhook_url:
+                logger.info("Webhook URL secret is empty or could not be retrieved. Skipping notification.")
+                return
+        else:
+            logger.info("Neither WEBHOOK_URL nor WEBHOOK_SECRET_ID environment variable is set. Skipping notification.")
+            return
+
+    if valid_url(webhook_url):
         headers = {"Content-Type": "application/json"}
         data = json.dumps({"text": message}).encode('utf-8')
         req = urllib.request.Request(webhook_url, data=data, headers=headers, method='POST')
         try:
             with urllib.request.urlopen(req) as response:
-                response_body = response.read().decode('utf-8')
                 if response.status != 200:
-                    logger.error(f"Failed to send notification. Status Code: {response.status}, Response: {response_body}")
+                    logger.error(f"Failed to send notification. Status Code: {response.status}, Response: {response.read().decode('utf-8')}")
                 else:
                     logger.info("Notification sent successfully.")
         except urllib.error.HTTPError as e:
-            # Handles HTTP errors
             logger.error(f"Failed to send notification. HTTP Error Code: {e.code}, Response: {e.read().decode()}")
         except urllib.error.URLError as e:
-            # Handles URL errors (e.g., network issues)
             logger.error(f"Failed to send notification. URL Error: {e.reason}")
     else:
-        logger.info("Webhook URL is invalid or not provided. Skipping notification.")
+        logger.info("Webhook URL is invalid. Skipping notification.")
