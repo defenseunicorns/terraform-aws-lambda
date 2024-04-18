@@ -211,17 +211,33 @@ def valid_url(url):
     except ValueError:
         return False
 
+def fetch_secret(secret_id):
+    """Fetch a secret value from AWS Secrets Manager."""
+    client = boto3.client('secretsmanager')
+    try:
+        response = client.get_secret_value(SecretId=secret_id)
+        secret = response['SecretString']
+        return secret
+    except Exception as e:
+        logger.error(f"Error retrieving secret {secret_id}: {str(e)}")
+        return None
+
 def send_notification(message, context):
     """Send a generic notification message to the specified webhook URL."""
-    secret_id = os.environ.get("WEBHOOK_SECRET_ID")
-    if not secret_id:
-        logger.info("WEBHOOK_SECRET_ID environment variable is not set. Skipping notification.")
-        return
+    # First, try to use the direct URL from the environment
+    webhook_url = os.environ.get("WEBHOOK_URL")
 
-    webhook_url = fetch_secret(secret_id)
+    # If not set, try fetching the URL from Secrets Manager using the secret ID
     if not webhook_url:
-        logger.info("Webhook URL secret is empty or could not be retrieved. Skipping notification.")
-        return
+        secret_id = os.environ.get("WEBHOOK_SECRET_ID")
+        if secret_id:
+            webhook_url = fetch_secret(secret_id)
+            if not webhook_url:
+                logger.info("Webhook URL secret is empty or could not be retrieved. Skipping notification.")
+                return
+        else:
+            logger.info("Neither WEBHOOK_URL nor WEBHOOK_SECRET_ID environment variable is set. Skipping notification.")
+            return
 
     if valid_url(webhook_url):
         headers = {"Content-Type": "application/json"}
@@ -239,35 +255,3 @@ def send_notification(message, context):
             logger.error(f"Failed to send notification. URL Error: {e.reason}")
     else:
         logger.info("Webhook URL is invalid. Skipping notification.")
-
-def fetch_secret(secret_id):
-    """Fetch a secret value from AWS Secrets Manager."""
-    # Create a Secrets Manager client
-    client = boto3.client('secretsmanager')
-    try:
-        # Retrieve the secret value
-        response = client.get_secret_value(SecretId=secret_id)
-    except client.exceptions.ResourceNotFoundException:
-        logger.error(f"The requested secret {secret_id} was not found.")
-        return None
-    except client.exceptions.InvalidRequestException:
-        logger.error(f"The request to get the secret {secret_id} was invalid.")
-        return None
-    except client.exceptions.InvalidParameterException:
-        logger.error(f"Invalid parameter in request to get secret {secret_id}.")
-        return None
-    except Exception as e:
-        logger.error(f"Error retrieving secret {secret_id}: {str(e)}")
-        return None
-    else:
-        # Decrypts secret using the associated KMS key
-        # Depending on whether the secret is a string or binary, one of these fields will be populated
-        if 'SecretString' in response:
-            secret = response['SecretString']
-            return secret
-        else:
-            # Assume the secret comes as a binary blob if not a string
-            binary_secret_data = response['SecretBinary']
-            # Decode binary secret data
-            secret = base64.b64decode(binary_secret_data)
-            return secret.decode('utf-8')
