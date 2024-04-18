@@ -215,6 +215,7 @@ def fetch_secret(secret_id):
     """Fetch a secret value from AWS Secrets Manager."""
     client = boto3.client('secretsmanager')
     try:
+        logger.info(f"Fetching webhook_url from secret {secret_id}")
         response = client.get_secret_value(SecretId=secret_id)
         secret = response['SecretString']
         return secret
