@@ -314,7 +314,7 @@ data "aws_ami" "amazonlinux2" {
 }
 
 module "bastion" {
-  source = "git::https://github.com/defenseunicorns/terraform-aws-bastion.git?ref=v0.0.15"
+  source = "git::https://github.com/defenseunicorns/terraform-aws-bastion.git?ref=v0.0.16"
 
   enable_bastion_terraform_permissions = true
 
