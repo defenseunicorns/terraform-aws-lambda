@@ -1,4 +1,94 @@
-# password-rotation
+# AWS Lambda Function for Password Rotation
+
+This module creates a Secrets Manager secret and a Lambda function to rotate the secret. The Lambda is triggered by the [Secrets Manager password rotation process](https://docs.aws.amazon.com/secretsmanager/latest/userguide/rotate-secrets_lambda-functions.html) and it is triggered by a schedule.
+
+The terraform creates the initial secret value using the `random_password` resource, and the secret is stored in Secrets Manager. The Lambda function is created using the `password_lambda` module.
+
+## Functionality
+
+This Lambda function interacts with AWS Secrets Manager and other AWS services to automate the process of rotating passwords. It is triggered by a specific rotation event and follows these steps:
+
+1. **Create Secret:** Generate a new password for each user and stages it as `AWSPENDING`. If an `AWSPENDING` version already exists, it is retrieved; otherwise, a new one is created.
+2. **Set Secret:** No operation is performed at this step but it's reserved for operations like setting the secret on a database or service.
+3. **Test Secret:** This step is reserved for testing the new secret to ensure it works as expected in the target system. No operation is performed at this stage.
+4. **Finish Secret:** The new secret version is set as `AWSCURRENT`, finalizing the rotation. Additionally, EC2 instances are updated using AWS Systems Manager (SSM) to use the newly rotated password.
+
+## Exception Handling
+
+The function includes robust error handling, logging the event details and providing detailed error messages. It constructs and logs AWS CLI commands to retrieve logs for deeper investigation.
+
+## Notifications
+
+The function can send notifications to a specified webhook URL upon completion or failure of the secret rotation process. It uses environment variables to manage notification settings. This is optional and can be configured as needed.
+
+## Environment Variables
+
+This Lambda function utilizes the following environment variables:
+
+- `USERS` **(Required)**: List of usernames for which passwords are rotated for each instance sent via SSM command. The function rotates the password for each user in the list.
+- `ROTATION_TAG_KEY` **(Required)**: Key for the tag used to identify EC2 instances for password updates.
+- `ROTATION_TAG_VALUE` **(Required)**: Value for the tag used to identify EC2 instances for password updates.
+- `EXCLUDE_CHARACTERS`: Characters to exclude from generated passwords.
+- `SECRETS_MANAGER_ENDPOINT`: Endpoint URL for the Secrets Manager service.
+- `SSM_ENDPOINT`: Endpoint URL for the Systems Manager service.
+- `WEBHOOK_SECRET_ID`: Secrets Manager secret ID where the webhook URL is stored. Ensure the Lambda function has permission to access the secret.
+- `WEBHOOK_URL`: Webhook URL to send notifications to. Not recommended to store the URL directly in the function's environment variables. Recommended to use `WEBHOOK_SECRET_ID`.
+
+Currently, only `USERS`, `ROTATION_TAG_KEY`, and `ROTATION_TAG_VALUE`, `NOTIFICATION_WEBHOOK_URL`, and `NOTIFICATION_WEBHOOK_SECRET_ID` are configurable through this terraform module.
+
+- `USERS`: maps to `var.users`
+- `ROTATION_TAG_KEY`: maps to `var.rotation_tag_key`
+- `ROTATION_TAG_VALUE`: maps to `var.rotation_tag_value`
+- `NOTIFICATION_WEBHOOK_URL`: maps to `var.notification_webhook_url`
+- `NOTIFICATION_WEBHOOK_SECRET_ID`: maps to `var.notification_webhook_secret_id`
+
+## Requirements
+
+- AWS SDK for Python (Boto3)
+- Python 3.8 or later
+
+## Deployment
+
+See [example terraform deployment here](../../examples/complete)
+
+### Permissions for notifcation_webhook_secret_id (WEBHOOK_SECRET_ID) example
+
+Assume that a secret is staged in AWS Secrets Manager with the webhook URL.
+
+Additional permissions can be set via `lambda_additional_policy_statements` when calling this module:
+
+```hcl
+### fetch secretsmanager secret for the notifcation webhook
+data "aws_secretsmanager_secret" "narwhal-bot-slack-webhook" {
+  count = var.notification_webhook_secret_id != "" ? 1 : 0
+  name  = var.notification_webhook_secret_id
+}
+
+module "password_lambda" {
+  source = "git::https://github.com/defenseunicorns/terraform-aws-lambda.git//modules/password-rotation?ref=v0.0.5"
+  region = var.region
+  suffix = lower(random_id.default.hex)
+  prefix = local.prefix
+  users  = var.users
+  lambda_additional_policy_statements = {
+    webhook_secret_fetcher = {
+      effect    = "Allow",
+      actions   = ["secretsmanager:GetSecretValue"]
+      resources = [data.aws_secretsmanager_secret.narwhal-bot-slack-webhook[0].arn]
+    }
+  }
+
+  notification_webhook_secret_id = data.aws_secretsmanager_secret.narwhal-bot-slack-webhook[0].arn
+  rotation_tag_key               = "Password-Rotation"
+  rotation_tag_value             = "enabled"
+}
+```
+
+## Logging
+
+Logs are essential for monitoring the behavior of the Lambda function and are particularly useful for debugging issues related to the rotation process.
+
+For more detailed usage and troubleshooting, please refer to the function code and associated AWS documentation.
 
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Requirements
@@ -20,8 +110,8 @@
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_password_lambda"></a> [password\_lambda](#module\_password\_lambda) | git::https://github.com/terraform-aws-modules/terraform-aws-lambda.git | v7.2.6 |
-| <a name="module_secrets_manager"></a> [secrets\_manager](#module\_secrets\_manager) | git::https://github.com/terraform-aws-modules/terraform-aws-secrets-manager.git | v1.1.2 |
+| <a name="module_password_lambda"></a> [password\_lambda](#module\_password\_lambda) | git::<https://github.com/terraform-aws-modules/terraform-aws-lambda.git> | v7.2.6 |
+| <a name="module_secrets_manager"></a> [secrets\_manager](#module\_secrets\_manager) | git::<https://github.com/terraform-aws-modules/terraform-aws-secrets-manager.git> | v1.1.2 |
 
 ## Resources
 
