@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.0.6](https://github.com/defenseunicorns/terraform-aws-lambda/compare/v0.0.5...v0.0.6) (2024-05-06)
+
+
+### Documentation
+
+* add docs for Lambda usage ([#38](https://github.com/defenseunicorns/terraform-aws-lambda/issues/38)) ([8252809](https://github.com/defenseunicorns/terraform-aws-lambda/commit/82528094ffb423f94325a9f0b73d04531c51944e))
+
+
+### Miscellaneous Chores
+
+* **deps:** update all dependencies ([#35](https://github.com/defenseunicorns/terraform-aws-lambda/issues/35)) ([ea258e3](https://github.com/defenseunicorns/terraform-aws-lambda/commit/ea258e33d2f701e96e145de417f642837355376a))
+* **deps:** update all dependencies ([#39](https://github.com/defenseunicorns/terraform-aws-lambda/issues/39)) ([c1e2cf1](https://github.com/defenseunicorns/terraform-aws-lambda/commit/c1e2cf1d46c5400b9b4bf79a4e3823ab1854250f))
+* **deps:** update pre-commit hook renovatebot/pre-commit-hooks to v37.316.2 ([#37](https://github.com/defenseunicorns/terraform-aws-lambda/issues/37)) ([74d699f](https://github.com/defenseunicorns/terraform-aws-lambda/commit/74d699f14f9035abc744ee4e63392434ad10c2ae))
+
 ## [0.0.5](https://github.com/defenseunicorns/terraform-aws-lambda/compare/v0.0.4...v0.0.5) (2024-04-18)
 
 
