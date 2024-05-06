@@ -26,11 +26,11 @@ module "password_lambda" {
   }
 
   environment_variables = {
-    USERS                    = join(",", var.users) # takes a list of users and joins them into a comma separated string
-    ROTATION_TAG_KEY         = var.rotation_tag_key
-    ROTATION_TAG_VALUE       = var.rotation_tag_value
-    NOTIFICATION_WEBHOOK_URL = var.notification_webhook_url
-    WEBHOOK_SECRET_ID        = var.notification_webhook_secret_id
+    USERS              = join(",", var.users) # takes a list of users and joins them into a comma separated string
+    ROTATION_TAG_KEY   = var.rotation_tag_key
+    ROTATION_TAG_VALUE = var.rotation_tag_value
+    WEBHOOK_URL        = var.notification_webhook_url
+    WEBHOOK_SECRET_ID  = var.notification_webhook_secret_id
   }
 
   assume_role_policy_statements = {
