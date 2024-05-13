@@ -11,7 +11,7 @@ data "aws_iam_session_context" "current" {
 }
 
 module "password_lambda" {
-  source        = "git::https://github.com/terraform-aws-modules/terraform-aws-lambda.git?ref=v7.2.6"
+  source        = "git::https://github.com/terraform-aws-modules/terraform-aws-lambda.git?ref=v7.4.0"
   function_name = join("-", compact([var.prefix, "password-rotation-function", var.suffix]))
   description   = var.description
   handler       = var.handler
