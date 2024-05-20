@@ -96,7 +96,7 @@ locals {
 
 module "vpc" {
   #checkov:skip=CKV_TF_1: using ref to a specific version
-  source = "git::https://github.com/defenseunicorns/terraform-aws-vpc.git?ref=v0.1.9"
+  source = "git::https://github.com/defenseunicorns/terraform-aws-vpc.git?ref=v0.1.10"
 
   name                  = local.vpc_name
   vpc_cidr              = "10.200.0.0/16"
