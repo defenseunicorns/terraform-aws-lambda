@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.0.7](https://github.com/defenseunicorns/terraform-aws-lambda/compare/v0.0.6...v0.0.7) (2024-05-23)
+
+
+### Bug Fixes
+
+* add backticks to excluded characters ([#44](https://github.com/defenseunicorns/terraform-aws-lambda/issues/44)) ([4278f8f](https://github.com/defenseunicorns/terraform-aws-lambda/commit/4278f8f31fcd9e69c9fc89ce45dd3ca6ce3cad29))
+
+
+### Miscellaneous Chores
+
+* **deps:** update all dependencies ([#41](https://github.com/defenseunicorns/terraform-aws-lambda/issues/41)) ([71bfaad](https://github.com/defenseunicorns/terraform-aws-lambda/commit/71bfaadde040081580b089b47f969c4fc31b23b6))
+* **deps:** update all dependencies ([#43](https://github.com/defenseunicorns/terraform-aws-lambda/issues/43)) ([cc2671b](https://github.com/defenseunicorns/terraform-aws-lambda/commit/cc2671b4b861fb0b60acdb4f900393261788c74b))
+
 ## [0.0.6](https://github.com/defenseunicorns/terraform-aws-lambda/compare/v0.0.5...v0.0.6) (2024-05-06)
 
 
