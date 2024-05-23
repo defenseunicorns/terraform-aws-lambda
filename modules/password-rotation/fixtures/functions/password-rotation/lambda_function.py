@@ -109,7 +109,7 @@ def create_secret(service_client, arn, token):
     except service_client.exceptions.ResourceNotFoundException:
         # Generate a new password for each user
         secret_data = {}
-        exclude_characters = os.environ.get('EXCLUDE_CHARACTERS', '/@"\'\\')
+        exclude_characters = os.environ.get('EXCLUDE_CHARACTERS', '/@"\'\\`')
         for user in users:
             passwd = service_client.get_random_password(ExcludeCharacters=exclude_characters)
             secret_data[user] = passwd['RandomPassword']
