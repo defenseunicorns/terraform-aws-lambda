@@ -110,7 +110,7 @@ For more detailed usage and troubleshooting, please refer to the function code a
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_password_lambda"></a> [password\_lambda](#module\_password\_lambda) | git::https://github.com/terraform-aws-modules/terraform-aws-lambda.git | v7.4.0 |
+| <a name="module_password_lambda"></a> [password\_lambda](#module\_password\_lambda) | git::https://github.com/terraform-aws-modules/terraform-aws-lambda.git | v7.5.0 |
 | <a name="module_secrets_manager"></a> [secrets\_manager](#module\_secrets\_manager) | git::https://github.com/terraform-aws-modules/terraform-aws-secrets-manager.git | v1.1.2 |
 
 ## Resources
