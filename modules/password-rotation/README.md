@@ -90,7 +90,7 @@ Logs are essential for monitoring the behavior of the Lambda function and are pa
 
 For more detailed usage and troubleshooting, please refer to the function code and associated AWS documentation.
 
-<!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+<!-- BEGINNING OF PRE-COMMIT-OPENTOFU DOCS HOOK -->
 ## Requirements
 
 | Name | Version |
@@ -156,4 +156,4 @@ For more detailed usage and troubleshooting, please refer to the function code a
 | <a name="output_lambda_password_function_arn"></a> [lambda\_password\_function\_arn](#output\_lambda\_password\_function\_arn) | Arn for lambda password function |
 | <a name="output_secrets_manager_secret_arn"></a> [secrets\_manager\_secret\_arn](#output\_secrets\_manager\_secret\_arn) | Arn for secrets manager secret |
 | <a name="output_secrets_manager_secret_id"></a> [secrets\_manager\_secret\_id](#output\_secrets\_manager\_secret\_id) | Version ID for the secrets manager secret |
-<!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+<!-- END OF PRE-COMMIT-OPENTOFU DOCS HOOK -->
