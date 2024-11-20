@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.0.8](https://github.com/defenseunicorns/terraform-aws-lambda/compare/v0.0.7...v0.0.8) (2024-11-20)
+
+
+### Miscellaneous Chores
+
+* **deps:** update all dependencies ([#45](https://github.com/defenseunicorns/terraform-aws-lambda/issues/45)) ([e7ec6c9](https://github.com/defenseunicorns/terraform-aws-lambda/commit/e7ec6c9bf30c8dfc9277dd446ef774668e45050f))
+* **deps:** update all dependencies ([#47](https://github.com/defenseunicorns/terraform-aws-lambda/issues/47)) ([1625853](https://github.com/defenseunicorns/terraform-aws-lambda/commit/1625853aaf9c6ca048e05b10448ee94fe7895555))
+* migrating to remote renovate pattern ([#51](https://github.com/defenseunicorns/terraform-aws-lambda/issues/51)) ([2cae12f](https://github.com/defenseunicorns/terraform-aws-lambda/commit/2cae12ffcb17e56862420e0ccd58abd07ef1825e))
+* remove repo config ([#50](https://github.com/defenseunicorns/terraform-aws-lambda/issues/50)) ([3497af2](https://github.com/defenseunicorns/terraform-aws-lambda/commit/3497af212bec3cc3006c2c4438ec75b92ac574df))
+* tofu migration ([#49](https://github.com/defenseunicorns/terraform-aws-lambda/issues/49)) ([589e94b](https://github.com/defenseunicorns/terraform-aws-lambda/commit/589e94b57e6dc8a2156a0545fa6c70815ef07266))
+
 ## [0.0.7](https://github.com/defenseunicorns/terraform-aws-lambda/compare/v0.0.6...v0.0.7) (2024-05-23)
 
 
